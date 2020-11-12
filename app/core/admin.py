@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from core import models
-#Goes through the translation engine
-from django.utils.translation import gettext as _ 
+# Goes through the translation engine
+from django.utils.translation import gettext as _
+
 
 class UserAdmin(BaseUserAdmin):
     ordering = ['id']
