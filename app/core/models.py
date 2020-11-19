@@ -1,9 +1,20 @@
+import uuid
+# os.path will create a valid path for the file destination
+import os
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
                                         PermissionsMixin, UserManager
 
 # We are using this to retrieve the auth user model
 from django.conf import settings
+
+def recipe_image_file_path(instance, filename):
+    """Generate file path fro new recipe image"""
+    extension = filename.split('.')[-1]
+    filename = f'{uuid.uuid4()}.{extension}'
+
+    # joins 2 strings together
+    return os.path.join('uploads/recipe/', filename)
 
 class UserManager(BaseUserManager):
 
@@ -80,6 +91,9 @@ class Recipe(models.Model):
     
     ingredients = models.ManyToManyField('Ingredient')
     tags = models.ManyToManyField('Tag')
+
+    # we pass reference to the upload_to not calling the function
+    image = models.ImageField(null=True, upload_to=recipe_image_file_path)
 
     def __str__(self):
         return self.title
