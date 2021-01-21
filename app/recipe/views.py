@@ -1,3 +1,4 @@
+from django.db.models import query
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, mixins, status
@@ -15,9 +16,20 @@ class BaseRecipeAttributeViewSet(viewsets.GenericViewSet,
     permission_classes = (IsAuthenticated,)
 
     # We override the get_queryset. (this is custom filtering)
+    # when assigned_only is 1 it returns all the tags that are assigned to recipes
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
-        return self.queryset.filter(user=self.request.user).order_by('-name')
+        # we add int because assigned_only is integer
+        assigned_only = bool(
+            int(self.request.query_params.get('assigned_only', 0))
+        )
+        queryset = self.queryset
+        if assigned_only:
+            queryset = queryset.filter(recipe__isnull=False) #will return only tags that are assign to recipes
+
+        return queryset.filter(
+            user=self.request.user
+        ).order_by('-name').distinct()
 
     def perform_create(self, serializer):
         """Creates a new object"""
